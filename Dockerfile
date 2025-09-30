@@ -1,30 +1,28 @@
-# Base image PHP + Apache (bisa pakai PHP 8.2)
 FROM php:8.2-apache
 
-# Install dependencies Laravel / Heimdall
+# Install dependencies umum
 RUN apt-get update && apt-get install -y \
-    libzip-dev unzip git \
-    && docker-php-ext-install pdo_mysql zip
+    libzip-dev unzip git libpq-dev \
+    && docker-php-ext-install pdo pdo_pgsql zip
 
-# Copy seluruh source code Heimdall ke container
+# Copy seluruh source code Heimdall
 COPY . /var/www/html
 
-# Set webroot
+# Set folder dan permission
 WORKDIR /var/www/html
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
-# Copy ikon ke folder public/storage/icons
+# Copy ikon ke public storage
 # RUN mkdir -p /var/www/html/public/storage/icons
 # COPY icons/* /var/www/html/public/storage/icons/
 
-# Enable mod_rewrite Apache untuk Laravel
+# Enable Apache rewrite
 RUN a2enmod rewrite
 
-# Copy entrypoint script
+# Copy entrypoint
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
-# Expose port
 EXPOSE 8080
